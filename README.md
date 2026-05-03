@@ -130,3 +130,7 @@ See [.env.example](.env.example). The backend fails loudly on startup if any req
             ├── Gallery.vue
             └── ImageModal.vue
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE).
