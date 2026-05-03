@@ -127,12 +127,14 @@ ensure_model "$ENHANCE_MODEL"
 echo ""
 
 # --- 6. Open iTerm2 tabs ----------------------------------------------------
-echo "Starting backend + frontend in iTerm2..."
+BACKEND_HOST="${IMAGE_SERVICE_HOST:-127.0.0.1}"
+BACKEND_PORT="${IMAGE_SERVICE_PORT:-8765}"
+BACKEND_HEALTH="http://${BACKEND_HOST}:${BACKEND_PORT}/api/styles"
 
+echo "Starting backend in iTerm2..."
 osascript <<APPLESCRIPT
 tell application "iTerm2"
     activate
-
     tell current window
         set newTab to (create tab with default profile)
         tell current session of newTab
@@ -140,7 +142,32 @@ tell application "iTerm2"
             write text "cd '${PROJECT_DIR}' && uv run python -m image_service.server"
         end tell
     end tell
+end tell
+APPLESCRIPT
 
+# Poll the backend until it answers. 60s should cover cold-start + first-run
+# venv provisioning. If it never comes up, we still spawn the frontend so the
+# user can see the error in its own tab — they can then check the backend tab.
+echo -n "Waiting for backend to be ready"
+for i in $(seq 1 60); do
+  if curl -sSf -m 1 "$BACKEND_HEALTH" >/dev/null 2>&1; then
+    echo " ✓ ready (after ${i}s)"
+    backend_ready=1
+    break
+  fi
+  echo -n "."
+  sleep 1
+done
+if [[ -z "${backend_ready:-}" ]]; then
+  echo ""
+  echo "⚠  Backend didn't respond on $BACKEND_HEALTH within 60s — starting frontend anyway." >&2
+  echo "   Check the image-studio-backend tab for errors." >&2
+fi
+
+echo "Starting frontend in iTerm2..."
+osascript <<APPLESCRIPT
+tell application "iTerm2"
+    activate
     tell current window
         set newTab to (create tab with default profile)
         tell current session of newTab
@@ -151,4 +178,5 @@ tell application "iTerm2"
 end tell
 APPLESCRIPT
 
-echo "Open http://localhost:${FRONTEND_PORT:-5173} once both tabs are ready."
+echo ""
+echo "Open http://localhost:${FRONTEND_PORT:-5173} — both services should be ready."
