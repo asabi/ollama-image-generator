@@ -1,0 +1,14 @@
+[project]
+name = "local-image-studio"
+version = "0.1.0"
+description = "Local web UI for Ollama image-generation models, with AI-powered prompt enhancement."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "python-dotenv>=1.2.2",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "litellm>=1.52.0",
+    "pillow>=11.0.0",
+]

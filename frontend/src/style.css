@@ -1,0 +1,88 @@
+:root {
+  --bg: #0f1115;
+  --panel: #161a22;
+  --panel-2: #1d2230;
+  --border: #2a3142;
+  --text: #e6e8ee;
+  --muted: #8a93a6;
+  --accent: #6aa2ff;
+  --accent-2: #8b6fff;
+  --danger: #ff6a6a;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-size: 14px; line-height: 1.45; }
+
+#app { max-width: 1280px; margin: 0 auto; padding: 24px; }
+
+h1 { margin: 0 0 16px 0; font-size: 22px; font-weight: 600; }
+h2 { margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+
+.row { display: flex; gap: 12px; flex-wrap: wrap; }
+.row > * { flex: 1 1 200px; }
+
+label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+input[type=text], input[type=number], select, textarea {
+  width: 100%;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+
+button {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+button:hover:not(:disabled) { background: #252b3c; border-color: #3a4358; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+button.primary { background: var(--accent); color: #0b1020; border-color: var(--accent); font-weight: 600; }
+button.primary:hover:not(:disabled) { background: #7fb1ff; border-color: #7fb1ff; }
+button.secondary { background: transparent; border-color: var(--accent-2); color: var(--accent-2); }
+button.secondary:hover:not(:disabled) { background: rgba(139, 111, 255, 0.1); }
+button.danger { color: var(--danger); border-color: var(--danger); }
+button.danger:hover:not(:disabled) { background: rgba(255, 106, 106, 0.1); }
+
+.actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+.preset-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.preset-row button { padding: 4px 10px; font-size: 12px; }
+.preset-row button.active { background: var(--accent); color: #0b1020; border-color: var(--accent); }
+
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.thumb { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: transform 0.1s, border-color 0.1s; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; }
+.thumb:hover { border-color: var(--accent); transform: translateY(-2px); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 24px; }
+.modal { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; max-width: min(1100px, 95vw); max-height: 95vh; overflow: auto; padding: 20px; }
+.modal img { max-width: 100%; max-height: 65vh; border-radius: 8px; display: block; margin: 0 auto; }
+.modal .meta { margin-top: 16px; display: grid; grid-template-columns: 130px 1fr; gap: 6px 12px; font-size: 13px; }
+.modal .meta dt { color: var(--muted); }
+.modal .meta dd { margin: 0; word-break: break-word; }
+
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; z-index: 100; max-width: 400px; }
+.toast.error { border-color: var(--danger); color: var(--danger); }
+
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -2px; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
