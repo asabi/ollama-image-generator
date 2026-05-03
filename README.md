@@ -90,7 +90,7 @@ Both streaming endpoints return `application/x-ndjson` (one JSON object per line
 
 ## Generation parameters
 
-The backend invokes ollama with its experimental image-gen flags:
+The backend invokes ollama with its experimental image-gen flags (see Ollama's [Image Generation announcement](https://ollama.com/blog/image-generation) for background):
 
 ```
 ollama run --width W --height H --seed S [--negative "..."] [--steps N] MODEL "<prompt>"
