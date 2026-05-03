@@ -4,6 +4,10 @@ A small local web app that wraps Ollama's experimental image-generation models (
 
 Runs entirely on your own machine — no external services, no cloud calls.
 
+| Main interface | Image details |
+| :---: | :---: |
+| ![Main interface — model pickers, prompt form, size and seed controls, gallery of thumbnails](media/interface.png) | ![Image-details modal — full image preview, metadata, download / reuse / delete](media/details.png) |
+
 ## What it does
 
 - **Style picker** — realistic / cartoon / anime / oil painting / watercolor / 3D render / pixel art / sketch / cinematic. The selected style always prepends keywords to the prompt sent to the model.
