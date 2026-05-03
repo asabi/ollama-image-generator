@@ -50,6 +50,7 @@ function onBackdrop(e) {
         <dt>Style</dt><dd>{{ image.style }}</dd>
         <dt>Size</dt><dd>{{ image.width }} × {{ image.height }}</dd>
         <dt>Seed</dt><dd>{{ image.seed != null ? image.seed : '—' }}</dd>
+        <dt>Steps</dt><dd>{{ image.steps != null ? image.steps : '—' }}</dd>
         <dt>Model</dt><dd>{{ image.model }}</dd>
         <dt>Created</dt><dd>{{ image.created_at }}</dd>
         <dt>Your prompt</dt><dd>{{ image.user_prompt }}</dd>

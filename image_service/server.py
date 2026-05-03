@@ -105,6 +105,7 @@ class ImageOut(BaseModel):
     width: int
     height: int
     seed: int | None
+    steps: int | None
     model: str
     created_at: str
 
@@ -243,17 +244,23 @@ def post_generate(body: GenerateIn) -> StreamingResponse:
                     return
 
                 now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+                # Record the actual number of steps the model ran (captured from
+                # the progress events). Falls back to whatever the user requested
+                # if we somehow didn't see any progress lines.
+                actual_steps = final_result.steps_used or body.steps
                 conn.execute(
                     """
                     INSERT INTO images (
                         id, filename, thumbnail, user_prompt, full_prompt,
-                        negative_prompt, style, width, height, seed, model, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        negative_prompt, style, width, height, seed, steps,
+                        model, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         final_result.image_id, final_result.filename, final_result.thumbnail,
                         body.prompt, full_prompt, body.negative_prompt, body.style,
-                        body.width, body.height, seed_for_this, image_model, now,
+                        body.width, body.height, seed_for_this, actual_steps,
+                        image_model, now,
                     ),
                 )
                 image_out = ImageOut(
@@ -267,6 +274,7 @@ def post_generate(body: GenerateIn) -> StreamingResponse:
                     width=body.width,
                     height=body.height,
                     seed=seed_for_this,
+                    steps=actual_steps,
                     model=image_model,
                     created_at=now,
                 )

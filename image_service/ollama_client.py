@@ -53,6 +53,7 @@ class GenerationResult:
     thumbnail: str       # UUID.png in THUMBS_DIR
     image_path: Path
     thumb_path: Path
+    steps_used: int | None  # captured from "Generating X/Y" lines; None if not parsed
 
 
 def _make_thumbnail(src: Path, dst: Path) -> None:
@@ -140,7 +141,10 @@ def generate_image_streaming(
         ).start()
 
         last_percent = -1
+        last_total = 0
         saved_str: str | None = None
+        # Keep every de-ANSI'd line we see; we'll surface them in error messages.
+        all_lines: list[str] = []
 
         # Pump events until the process exits AND the queue has drained.
         while proc.poll() is None or not q.empty():
@@ -148,13 +152,15 @@ def generate_image_streaming(
                 _label, line = q.get(timeout=0.1)
             except Empty:
                 continue
+            all_lines.append(line)
 
             m = PROGRESS_RE.search(line)
             if m:
                 pct = int(m.group(1))
+                last_total = int(m.group(3))
                 if pct != last_percent:
                     last_percent = pct
-                    yield ProgressEvent(pct, int(m.group(2)), int(m.group(3)))
+                    yield ProgressEvent(pct, int(m.group(2)), last_total)
                 continue
 
             m = SAVED_RE.search(line)
@@ -162,16 +168,17 @@ def generate_image_streaming(
                 saved_str = m.group(1).strip().strip('"').strip("'")
 
         rc = proc.wait(timeout=5)
+        # Drain anything still queued so post-mortem messages are complete.
+        while True:
+            try:
+                all_lines.append(q.get_nowait()[1])
+            except Empty:
+                break
+
         if rc != 0:
-            # drain remaining stderr for the error message
-            tail = []
-            while True:
-                try:
-                    tail.append(q.get_nowait()[1])
-                except Empty:
-                    break
             raise RuntimeError(
-                f"ollama exited {rc}. Last lines:\n" + "\n".join(tail[-20:])
+                f"ollama exited {rc}. Last output lines:\n"
+                + "\n".join(all_lines[-30:])
             )
 
         # Locate the PNG. Prefer the saved-to path; fall back to scanning.
@@ -187,9 +194,13 @@ def generate_image_streaming(
             if len(pngs) == 1:
                 candidate = pngs[0]
         if candidate is None:
+            tail = "\n".join(all_lines[-20:]) or "<no output captured>"
             raise RuntimeError(
-                f"Could not locate generated PNG in {workdir} "
-                f"(saved-line: {saved_str!r})"
+                f"Ollama exited cleanly but produced no PNG for {width}x{height}. "
+                f"This usually means the model silently rejected those dimensions. "
+                f"Try a different size (most safe sizes are multiples of 64 like "
+                f"512x512, 768x512, 1024x1024, 1280x720). "
+                f"Ollama's output was:\n{tail}"
             )
 
         shutil.move(str(candidate), str(final_image))
@@ -202,4 +213,5 @@ def generate_image_streaming(
         thumbnail=final_filename,
         image_path=final_image,
         thumb_path=final_thumb,
+        steps_used=last_total or None,
     )

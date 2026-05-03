@@ -26,6 +26,7 @@ const width = ref(1024)
 const height = ref(1024)
 const batch = ref(1)
 const seed = ref('')
+const steps = ref('')      // empty string = let the model use its recommended default
 
 const enhancing = ref(false)
 const generating = ref(false)
@@ -143,6 +144,15 @@ async function onGenerate() {
     }
     seedNum = n
   }
+  let stepsNum = null
+  if (steps.value !== '' && steps.value !== null) {
+    const n = Number(steps.value)
+    if (!Number.isInteger(n) || n < 1 || n > 200) {
+      emit('error', 'Steps must be an integer between 1 and 200, or blank.')
+      return
+    }
+    stepsNum = n
+  }
   generating.value = true
   progress.value = { imageIndex: 0, batchTotal: batch.value, percent: 0, step: 0, total: 0 }
   let producedCount = 0
@@ -155,6 +165,7 @@ async function onGenerate() {
         height: height.value,
         negative_prompt: negative.value || null,
         seed: seedNum,
+        steps: stepsNum,
         batch_count: batch.value,
         image_model: imageModel.value || null,
       },
@@ -201,8 +212,11 @@ function loadFrom(image) {
   width.value = image.width
   height.value = image.height
   seed.value = image.seed != null ? String(image.seed) : ''
+  steps.value = image.steps != null ? String(image.steps) : ''
+  if (imageModels.value.some((m) => m.name === image.model)) imageModel.value = image.model
 }
 function randomizeSeed() { seed.value = '' }
+function clearSteps() { steps.value = '' }
 defineExpose({ loadFrom })
 </script>
 
@@ -282,13 +296,22 @@ defineExpose({ loadFrom })
     </div>
 
     <div class="row" style="margin-top: 8px">
-      <div style="flex: 2 1 320px">
+      <div style="flex: 2 1 280px">
         <label for="seed">Seed (blank = random)</label>
         <input id="seed" type="text" v-model="seed" placeholder="leave blank for random per-image" inputmode="numeric" />
       </div>
-      <div style="flex: 0 0 auto; align-self: end">
-        <button type="button" @click="randomizeSeed" :disabled="!seed">Clear seed</button>
+      <div style="flex: 1 1 180px">
+        <label for="steps">Steps (blank = model default)</label>
+        <input id="steps" type="text" v-model="steps" placeholder="e.g. 9 (z-image-turbo) or 28" inputmode="numeric" />
       </div>
+      <div style="flex: 0 0 auto; align-self: end; display: flex; gap: 6px">
+        <button type="button" @click="randomizeSeed" :disabled="!seed">Clear seed</button>
+        <button type="button" @click="clearSteps" :disabled="!steps">Clear steps</button>
+      </div>
+    </div>
+    <div style="font-size: 12px; color: var(--muted); margin-top: 6px;">
+      Steps control the number of denoising iterations. Fewer = faster but less detailed.
+      Too many can introduce artifacts. Leave blank to use the model's recommended default.
     </div>
 
     <div class="actions">

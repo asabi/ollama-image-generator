@@ -12,8 +12,12 @@ const formRef = ref(null)
 
 function showToast(message, kind = 'info') {
   toast.value = { message, kind }
-  setTimeout(() => { if (toast.value && toast.value.message === message) toast.value = null }, 4000)
+  // Errors hang around longer (multi-line, user may want to read carefully).
+  // Click to dismiss either way.
+  const ttl = kind === 'error' ? 20000 : 4000
+  setTimeout(() => { if (toast.value && toast.value.message === message) toast.value = null }, ttl)
 }
+function dismissToast() { toast.value = null }
 
 async function refresh() {
   try {
@@ -62,7 +66,10 @@ function onReuse(img) {
     @error="(m) => showToast(m, 'error')"
   />
 
-  <div v-if="toast" :class="['toast', toast.kind === 'error' ? 'error' : '']">
-    {{ toast.message }}
-  </div>
+  <div
+    v-if="toast"
+    :class="['toast', toast.kind === 'error' ? 'error' : '']"
+    @click="dismissToast"
+    title="Click to dismiss"
+  >{{ toast.message }}</div>
 </template>
