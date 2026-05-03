@@ -10,7 +10,7 @@ const emit = defineEmits(['open'])
 <template>
   <div class="panel">
     <h2>Gallery ({{ images.length }})</h2>
-    <div v-if="!images.length" class="empty">No images yet — generate one above.</div>
+    <div v-if="!images.length" class="empty">No images yet. Generate one above.</div>
     <div v-else class="gallery">
       <div
         v-for="img in images"

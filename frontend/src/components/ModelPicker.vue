@@ -33,7 +33,7 @@ function fmtMeta(m) {
 function optionLabel(m) {
   return m.installed
     ? `${m.name}${fmtMeta(m)}`
-    : `${m.name} — not installed`
+    : `${m.name} (not installed)`
 }
 
 async function onPull() {
@@ -80,7 +80,7 @@ async function onPull() {
 
     <div v-if="pulling" class="pull-progress">
       <div class="pull-status">
-        Pulling <strong>{{ selected }}</strong> — {{ pullStatus || '…' }}
+        Pulling <strong>{{ selected }}</strong>: {{ pullStatus || '…' }}
         <span v-if="pullLayerIndex > 0" style="color: var(--muted)"> (layer {{ pullLayerIndex }})</span>
       </div>
       <div class="progress-bar">

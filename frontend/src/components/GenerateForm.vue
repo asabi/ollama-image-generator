@@ -327,7 +327,7 @@ defineExpose({ loadFrom })
 
     <div v-if="progress" class="progress" style="margin-top: 14px">
       <div class="progress-label">
-        Image {{ progress.imageIndex + 1 }} of {{ progress.batchTotal }} —
+        Image {{ progress.imageIndex + 1 }} of {{ progress.batchTotal }}:
         {{ progress.percent }}%
         <span v-if="progress.total" style="color: var(--muted)">
           ({{ progress.step }}/{{ progress.total }} steps)
